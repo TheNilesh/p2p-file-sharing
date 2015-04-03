@@ -9,9 +9,9 @@ public class LocalFileReportReq extends P2PRequest{
 	 */
 	private static final long serialVersionUID = -3740451455198013360L;
 	FileInfo[] localFiles;
-	byte[] whatHappened;
+	int[] whatHappened;
 
-	LocalFileReportReq(FileInfo[] fLocal,byte[] whatHappened){
+	public LocalFileReportReq(FileInfo[] fLocal,int[] whatHappened){
 		super();
 		this.localFiles=fLocal;
 		this.type=Req.NEW_FILE;
