@@ -20,7 +20,6 @@ public class P2PMain {
 			System.err.println("Provided IP is invalid");
 		}
 	}
-
 	
 	public FileInfo[] SearchFile(String[] searchTags){
 		SearchResponse sr = (SearchResponse) srv.send(new SearchReq(searchTags));

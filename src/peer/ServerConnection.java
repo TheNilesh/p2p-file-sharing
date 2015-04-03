@@ -2,26 +2,30 @@ package peer;
 
 import java.io.*;
 import java.net.*;
+import java.util.Timer;
 
 import com.P2PResponse;
 import com.p2prequest.P2PRequest;
 
-public class ServerConnection {
+public class ServerConnection{
 private InetAddress srv=null;
 private int port;
+private Timer timer;
+private KeepAlive keepAlive;
 
 	ServerConnection(InetAddress ia,int port){
-		//Initiate connection with server
 		this.srv=ia;
 		this.port=port;
+		timer=new Timer();
+		keepAlive=new KeepAlive(this); //Object which querries Server @ Regular Interval
+		timer.schedule(keepAlive, 10000, 10000);
 	}
 	
 	ServerConnection(String servIP,int port) throws UnknownHostException{
-		this.srv=InetAddress.getByName(servIP);
-		this.port=port;
+		this(InetAddress.getByName(servIP),port);
 	}
 	
-	public P2PResponse send(P2PRequest req){
+	public synchronized P2PResponse send(P2PRequest req){
 		P2PResponse resp=null;
 		try{
 				Socket s=new Socket(srv,port);
@@ -34,5 +38,9 @@ private int port;
 			System.err.println("Ex ServerConnection.send : " + ex);
 		}
 		return resp;
+	}
+	
+	public void close(){
+		timer.cancel();
 	}
 }
