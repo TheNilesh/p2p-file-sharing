@@ -24,7 +24,7 @@ public class ConnectionManager implements Runnable{
 				while(true){
 					try{
 						Socket sck=srv.accept();
-						System.out.println("Got connection");
+						//System.out.println("Got connection");
 						new Thread(new PeerConnection(sck,sm)).start();
 					}catch(Exception ex){
 						ex.printStackTrace();
