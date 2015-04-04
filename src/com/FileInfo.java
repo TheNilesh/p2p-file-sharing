@@ -1,20 +1,39 @@
 package com;
 import java.io.File;
+import java.util.HashSet;
 
 public class FileInfo {
-	String name;
-	String tags[];
+	String checksum;
+	HashSet<String> tags;
+	HashSet<PeerID> hasFile;
 	transient File file;
 	long len;
-	int pieceCount;
-	byte[] checksum=null;
 	public FileInfo(File f){
-		name=f.getName();
+		tags=new HashSet<String>();
+		tags.add(f.getName());
 		file=f;
 		len=f.length();
 	}
-	public void calculateChecksum(){
+	
+	public void calculateChecksum(){ //called by peer
 		System.out.println("Not Implemented");
-		checksum=new byte[12];
+		checksum="Abcd";
+	}
+	
+	public void attachTag(String tag){ //called by server
+		String tmp[]=tag.split(" ");
+		for(int i=0;i<tmp.length;i++)
+			tags.add(tmp[i]);
+	}
+	
+	public boolean addSeeder(PeerID p){
+		return hasFile.add(p);
+	}
+	
+	boolean tagMatches(HashSet<String> toSearch){
+		HashSet<String> sample=new HashSet<String>(tags);
+		sample.retainAll(toSearch);
+		return (sample.isEmpty()?false:true);
 	}
 }
+
