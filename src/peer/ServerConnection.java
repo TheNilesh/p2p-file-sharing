@@ -18,7 +18,6 @@ private KeepAlive keepAlive;
 		this.port=port;
 		timer=new Timer();
 		keepAlive=new KeepAlive(this); //Object which querries Server @ Regular Interval
-		timer.schedule(keepAlive, 10000, 10000);
 	}
 	
 	ServerConnection(String servIP,int port) throws UnknownHostException{
@@ -39,7 +38,9 @@ private KeepAlive keepAlive;
 		}
 		return resp;
 	}
-	
+	public void open(){
+		timer.schedule(keepAlive, 10000, 10000);
+	}
 	public void close(){
 		timer.cancel();
 	}

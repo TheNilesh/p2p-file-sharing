@@ -11,14 +11,14 @@ import com.p2prequest.*;
 public class P2PMain {
 	public static PeerID ownID;
 	private ServerConnection srv;
-	P2PMain(){
+	private final FileManager fileManager;
+	
+	P2PMain(String share,String server,int port) throws Exception{
+		fileManager=new FileManager(share,this);
+		fileManager.startMonitor();
 		ownID=new PeerID();
-		try
-		{
-			srv=new ServerConnection("localhost",4869);	
-		}catch(UnknownHostException ex){
-			System.err.println("Provided IP is invalid");
-		}
+		srv=new ServerConnection(server,port);
+		srv.open();
 	}
 	
 	public FileInfo[] SearchFile(String[] searchTags){
@@ -35,11 +35,7 @@ public class P2PMain {
 		srv.send(new LocalFileReportReq(localFiles,whatHappened));
 	}
 	
-public static void main(String args[]){
-	P2PMain p=new P2PMain();
-	P2PResponse re=p.srv.send(new AliveReq());
-	if(re!=null){
-		System.out.println(re.getStatus());
-	}
+public static void main(String args[]) throws Exception{
+	P2PMain p=new P2PMain("D:\\Nilesh\\temp","localhost",4869);
 }
 }

@@ -1,17 +1,22 @@
 package peer;
 import java.nio.file.*;
+
 import static java.nio.file.StandardWatchEventKinds.*;
 import static java.nio.file.LinkOption.*;
+
 import java.nio.file.attribute.*;
 import java.io.*;
 import java.util.*;
+
+import com.FileStatus;
 
 /**
  * Example to watch a directory (or tree) for changes to files.
  */
 
-public class WatchDir {
-	private FileManager fileManager;
+public class WatchDir implements Runnable{
+
+	private final FileManager fileManager;
     private final WatchService watcher;
     private final Map<WatchKey,Path> keys;
     private final boolean recursive;
@@ -60,8 +65,8 @@ public class WatchDir {
     /**
      * Creates a WatchService and registers the given directory
      */
-    WatchDir(Path dir, boolean recursive,FileManager fm) throws IOException {
-    	this.fileManager=fm;
+    WatchDir(Path dir, boolean recursive,FileManager fileManager) throws IOException {
+    	this.fileManager=fileManager;
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<WatchKey,Path>();
         this.recursive = recursive;
@@ -77,12 +82,12 @@ public class WatchDir {
         // enable trace after initial registration
         this.trace = true;
     }
-
     /**
      * Process all events for keys queued to the watcher
      */
     void processEvents() {
-        for (;;) {
+	long lastModi=0;  //closed=false means we are allowed to exceute
+        while (true) {
 
             // wait for key to be signalled
             WatchKey key;
@@ -112,16 +117,22 @@ public class WatchDir {
                 Path child = dir.resolve(name);
 
                 // print out event
-                
-                System.out.format("%s: %s\n", event.kind().name(), child);
-                switch(event.kind().name()){
-                case ENTRY_CREATE:
-                	fileManager.fileChanged(child.toFile(),com.FileStatus.NEW);
-                	break;
-                }
-                
-              
-                
+                //System.out.format("%s: %s\n", event.kind().name(), child);
+
+if(kind==ENTRY_CREATE){
+	System.out.format("%s: %s\n", event.kind().name(), child);
+	fileManager.fileChanged(child.toFile(), FileStatus.NEW);
+}else if(kind==ENTRY_MODIFY){
+	if(child.toFile().lastModified() - lastModi > 1000){
+		System.out.format("%s: %s\n", event.kind().name(), child);
+		fileManager.fileChanged(child.toFile(), FileStatus.MODIFY);
+	}
+}else if(kind==ENTRY_DELETE){
+	System.out.format("%s: %s\n", event.kind().name(), child);
+	fileManager.fileChanged(child.toFile(), FileStatus.MODIFY);
+}
+	lastModi=child.toFile().lastModified();
+
                 // if directory is created, and watching recursively, then
                 // register it and its sub-directories
                 if (recursive && (kind == ENTRY_CREATE)) {
@@ -147,8 +158,11 @@ public class WatchDir {
             }
         }
     }
-
-    static void usage() {
+  
+    public void run(){
+    	processEvents();
+    }
+ /*   static void usage() {
         System.err.println("usage: java WatchDir [-r] dir");
         System.exit(-1);
     }
@@ -168,6 +182,6 @@ public class WatchDir {
 
         // register directory and process its events
         Path dir = Paths.get(args[dirArg]);
-        new WatchDir(dir, recursive).processEvents();
-    }
+        new WatchDir(dir, recursive,null).processEvents();
+    }*/
 }

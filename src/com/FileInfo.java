@@ -8,7 +8,7 @@ public class FileInfo {
 	long len;
 	int pieceCount;
 	byte[] checksum=null;
-	FileInfo(File f){
+	public FileInfo(File f){
 		name=f.getName();
 		file=f;
 		len=f.length();
