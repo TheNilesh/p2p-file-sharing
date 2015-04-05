@@ -9,7 +9,7 @@ public class ReadyReq extends P2PRequest{
 	private static final long serialVersionUID = -5166127810812001932L;
 	int port;
 	
-	ReadyReq(int sessionID,int port){
+	public ReadyReq(int sessionID,int port){
 		super();
 		this.type=Req.READY_TO_DOWNLOAD;
 		this.sessionID=sessionID;

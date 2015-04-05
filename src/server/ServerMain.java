@@ -11,6 +11,7 @@ public static void main(String args[]){
 	ConnectionManager connectionManager;
 	Thread connMan;
 	
+	
 	ServerMain(){
 		connectionManager=new ConnectionManager(this, 4869);
 		connMan=new Thread(connectionManager);

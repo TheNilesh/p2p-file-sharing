@@ -7,12 +7,12 @@ public class DownloadReq extends P2PRequest{
 	 * 
 	 */
 	private static final long serialVersionUID = 8962283416152524839L;
-	byte[] fileID;
+	String fileID;
 	
-	public DownloadReq(byte[] fileID){
+	public DownloadReq(String checksum){
 		super();
 		this.type=Req.DOWNLOAD_REQ;
-		this.fileID=fileID;
+		this.fileID=checksum;
 		this.description="request to send file, i.e, ask other peers to send me";
 	}
 }

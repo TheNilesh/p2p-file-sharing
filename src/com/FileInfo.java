@@ -1,9 +1,15 @@
 package com;
 import java.io.File;
+import java.io.Serializable;
 import java.util.HashSet;
 
-public class FileInfo {
+public class FileInfo implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String checksum;
+	public String name;
 	private HashSet<String> tags;
 	private HashSet<PeerID> hasFile;
 	private transient File file;
@@ -15,8 +21,11 @@ public class FileInfo {
 		file=f;
 		len=f.length();
 		fileStatus=0;
+		name=f.getName();
 	}
-	
+	public String toString(){
+		return name;
+	}
 	public void calculateChecksum(){ //called by peer
 		System.out.println("Not Implemented");
 		checksum="Abcd";
@@ -52,6 +61,10 @@ public class FileInfo {
 	
 	public String getChecksum(){
 		return checksum;
+	}
+	public void setFile(File lf) {
+		// TODO Auto-generated method stub
+		this.file=lf;
 	}
 }
 

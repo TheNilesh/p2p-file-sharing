@@ -5,23 +5,28 @@ import java.net.*;
 import java.util.Timer;
 
 import com.P2PResponse;
+import com.TaskResponse;
 import com.p2prequest.P2PRequest;
 
 public class ServerConnection{
 private InetAddress srv=null;
 private int port;
+private P2PMain peerProcess;
 private Timer timer;
 private KeepAlive keepAlive;
+long keepAliveInterval;
 
-	ServerConnection(InetAddress ia,int port){
+	ServerConnection(InetAddress ia,int port,long keepAliveInterval,P2PMain p){
 		this.srv=ia;
 		this.port=port;
+		this.peerProcess=p;
+		this.keepAliveInterval=keepAliveInterval;
 		timer=new Timer();
 		keepAlive=new KeepAlive(this); //Object which querries Server @ Regular Interval
 	}
 	
-	ServerConnection(String servIP,int port) throws UnknownHostException{
-		this(InetAddress.getByName(servIP),port);
+	ServerConnection(String servIP,int port,long keepAliveInterval,P2PMain p) throws UnknownHostException{
+		this(InetAddress.getByName(servIP),port,keepAliveInterval,p);
 	}
 	
 	public synchronized P2PResponse send(P2PRequest req){
@@ -39,9 +44,13 @@ private KeepAlive keepAlive;
 		return resp;
 	}
 	public void open(){
-		timer.schedule(keepAlive, 10000, 10000);
+		timer.schedule(keepAlive,1000,keepAliveInterval);
 	}
 	public void close(){
 		timer.cancel();
+	}
+	
+	void doTask(TaskResponse tr){
+		peerProcess.doUploadBlock(tr.getFile(),tr.getBlocks(), tr.getPeer());
 	}
 }

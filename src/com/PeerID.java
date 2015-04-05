@@ -1,5 +1,6 @@
 package com;
 import java.io.Serializable;
+import java.util.Random;
 
 public class PeerID implements Serializable{
 	/**
@@ -10,5 +11,10 @@ public class PeerID implements Serializable{
 	public String nick;	//User readable name, choosed by peer and validated by server for duplicates
 	public String toString(){
 		return nick;
+	}
+	public PeerID(){
+		Random r=new Random();
+		String s="Peer "  + r.nextInt();
+		nick=s;
 	}
 }

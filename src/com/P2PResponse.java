@@ -4,6 +4,7 @@ import java.io.Serializable;
 public class P2PResponse implements Serializable {
 	private static final long serialVersionUID = 1L;
 	int reqID;	//ID of req for which this is response
+	int sessionID;
 	boolean status;
 	String description;
 	
@@ -18,6 +19,10 @@ public class P2PResponse implements Serializable {
 	
 	public String getDescription(){
 		return description;
+	}
+	
+	public int getSessionID(){
+		return sessionID;
 	}
 	
 	public boolean getStatus(){

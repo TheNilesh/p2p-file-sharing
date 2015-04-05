@@ -2,6 +2,8 @@ package peer;
 
 import java.util.TimerTask;
 
+import com.P2PResponse;
+import com.TaskResponse;
 import com.p2prequest.AliveReq;
 
 class KeepAlive extends TimerTask{
@@ -11,6 +13,11 @@ class KeepAlive extends TimerTask{
 	}
 	
 	public void run(){
-		srv.send(new AliveReq());
+		P2PResponse pr=srv.send(new AliveReq());
+		if(pr.getStatus()==false){
+			//Server sent job
+			TaskResponse tr=(TaskResponse)pr;
+			srv.doTask(tr); //we done it
+		}
 	}
 }
