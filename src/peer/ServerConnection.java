@@ -11,7 +11,7 @@ import com.p2prequest.P2PRequest;
 public class ServerConnection{
 private InetAddress srv=null;
 private int port;
-private P2PMain peerProcess;
+P2PMain peerProcess;
 private Timer timer;
 private KeepAlive keepAlive;
 long keepAliveInterval;
@@ -39,7 +39,7 @@ long keepAliveInterval;
 				resp=( P2PResponse )obis.readObject();
 				s.close();
 		}catch(Exception ex){
-			System.err.println("Ex ServerConnection.send : " + ex);
+			ex.printStackTrace();
 		}
 		return resp;
 	}

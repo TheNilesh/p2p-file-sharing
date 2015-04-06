@@ -129,7 +129,7 @@ if(kind==ENTRY_CREATE){
 	}
 }else if(kind==ENTRY_DELETE){
 	System.out.format("%s: %s\n", event.kind().name(), child);
-	fileManager.fileChanged(child.toFile(), FileStatus.MODIFY);
+	fileManager.fileChanged(child.toFile(), FileStatus.DELETE);
 }
 	lastModi=child.toFile().lastModified();
 

@@ -13,7 +13,7 @@ class KeepAlive extends TimerTask{
 	}
 	
 	public void run(){
-		P2PResponse pr=srv.send(new AliveReq());
+		P2PResponse pr=srv.send(new AliveReq(srv.peerProcess.ownID));
 		if(pr.getStatus()==false){
 			//Server sent job
 			TaskResponse tr=(TaskResponse)pr;

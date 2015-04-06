@@ -17,18 +17,24 @@ public class FileInfo implements Serializable{
 	private int fileStatus;
 	public FileInfo(File f){
 		tags=new HashSet<String>();
+		hasFile=new HashSet<PeerID>();
 		tags.add(f.getName());
 		file=f;
 		len=f.length();
-		fileStatus=0;
+		fileStatus=FileStatus.NEW;
 		name=f.getName();
 	}
 	public String toString(){
 		return name;
 	}
 	public void calculateChecksum(){ //called by peer
-		System.out.println("Not Implemented");
-		checksum="Abcd";
+		//System.out.println("Not Implemented");
+			try {
+				checksum=new ShowMD5(file).calculateMD5();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 	
 	public File getFile(){
@@ -65,6 +71,9 @@ public class FileInfo implements Serializable{
 	public void setFile(File lf) {
 		// TODO Auto-generated method stub
 		this.file=lf;
+	}
+	public void removeSeeder(PeerID p) {
+		hasFile.remove(p);
 	}
 }
 

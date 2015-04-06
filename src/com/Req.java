@@ -7,5 +7,5 @@ public static final int SEARCH=3;
 public static final int DOWNLOAD_REQ=4;
 public static final int READY_TO_DOWNLOAD=5;
 public static final int ALIVE=6;
-public static final int NEW_FILE=7;
+public static final int FILE_CHANGED=7;
 }

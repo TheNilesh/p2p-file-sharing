@@ -12,7 +12,7 @@ import com.SearchResponse;
 import com.p2prequest.*;
 
 public class P2PMain {
-	public static PeerID ownID;
+	public PeerID ownID;
 	private ServerConnection srv;
 	private final FileManager fileManager;
 	private final DownloadManager downloadMgr;
@@ -21,18 +21,18 @@ public class P2PMain {
 	P2PMain(String share,String server,int port) throws Exception{
 		fileManager=new FileManager(share,this);
 		downloadMgr=new DownloadManager(this);
-		ownID=new PeerID();
+		ownID=new PeerID("nilesh");
 		srv=new ServerConnection(server,port,KEEP_ALIVE_TIME,this);
 		srv.open();
 	}
 	
 	public HashSet<FileInfo> SearchFile(HashSet<String> searchTags){
-		SearchResponse sr = (SearchResponse) srv.send(new SearchReq(searchTags));
+		SearchResponse sr = (SearchResponse) srv.send(new SearchReq(searchTags,ownID));
 		return sr.getFiles();
 	}
 	
 	public boolean downloadFile(String checksum,String localName){
-		P2PResponse pr=srv.send(new DownloadReq(checksum));
+		P2PResponse pr=srv.send(new DownloadReq(checksum,ownID));
 		DownloadResponse dr=(DownloadResponse) pr;
 		if(dr.getStatus()==true){
 			//create new Download
@@ -42,15 +42,15 @@ public class P2PMain {
 			if(!lf.exists()){
 				f.setFile(lf);
 				int port=downloadMgr.addDownload(f,dr.getSessionID());
-				ReadyReq r = new ReadyReq(pr.getSessionID(),port);
+				ReadyReq r = new ReadyReq(pr.getSessionID(),port,ownID);
 				pr=srv.send(r);
 			}
 		}
 		return pr.getStatus(); //false if file could not be located
 	}
 	
-	public void updateFileDB(HashSet<FileInfo> localFiles){ // if file is modified update to server 
-		srv.send(new LocalFileReportReq(localFiles));
+	public void updateFileDB(FileInfo fi){ // if file is modified update to server 
+		srv.send(new LocalFileReportReq(fi,ownID));
 	}
 	
 	public void doUploadBlock(FileInfo fi, byte[]blocks,PeerInfo p){
@@ -59,7 +59,7 @@ public class P2PMain {
 	
 public static void main(String args[]) throws Exception{
 	P2PMain p=new P2PMain("D:\\Nilesh\\temp","localhost",4869);
-	boolean t=p.downloadFile("checkSUM","D:\\Nilesh\\abc.txt");
-	System.out.println(t);
+	//boolean t=p.downloadFile("checkSUM","D:\\Nilesh\\abc.txt");
+	//System.out.println(t);
 }
 }

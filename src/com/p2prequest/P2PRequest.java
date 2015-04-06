@@ -27,9 +27,9 @@ public class P2PRequest implements Serializable {
 	public int getSessionID(){
 		return sessionID;
 	}
-	P2PRequest(){
+	P2PRequest(PeerID peerID){
 		reqID=(new Random()).nextInt();
-		peerID=peer.P2PMain.ownID;
+		this.peerID=peerID;
 	}
 }
 

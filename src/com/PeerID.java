@@ -17,4 +17,7 @@ public class PeerID implements Serializable{
 		String s="Peer "  + r.nextInt();
 		nick=s;
 	}
+	public PeerID(String name){
+		this.nick=name;
+	}
 }
