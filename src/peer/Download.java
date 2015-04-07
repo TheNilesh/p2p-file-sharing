@@ -38,7 +38,7 @@ public class Download implements Runnable {
 		}
 		
 		void listen(){
-			byte buf[]=new byte[65500];	//max Size for UDP packet without fragmentation
+			byte buf[]=new byte[600];	//max Size for UDP packet without fragmentation
 			DatagramPacket p=new DatagramPacket(buf,buf.length);
 			try{ 
 				while(true)
@@ -60,16 +60,17 @@ public class Download implements Runnable {
 			String checksum;
 			int blockNumber;
 			byte[] tmp=new byte[1];
-			byte[] chk=new byte[10];
+			byte[] chk=new byte[16];
 			ByteArrayInputStream bis=new ByteArrayInputStream(packet);
 			
 			try {
-				bis.read(tmp);
-				bis.read(chk);
-				checksum=new String(chk);//convert checksum back into String
-				blockNumber=bis.read();
+				bis.read(tmp); //what to do with block?
+				bis.read(chk); //checksum
+				checksum=Constants.bytesToHex(chk);//convert checksum back into String
+				blockNumber=bis.read();	//Which location
 				payload=new byte[bis.available()];
 				bis.read(payload); //read data
+				System.out.println("got block :" + blockNumber + " of " + f.getFile().getName());
 				if(!checksum.equals(f.getChecksum())){
 					System.out.println("Error :checksum does not match.");
 				}else{

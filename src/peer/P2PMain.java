@@ -19,10 +19,10 @@ public class P2PMain {
 	public static final long KEEP_ALIVE_TIME=60000;
 	
 	P2PMain(String share,String server,int port) throws Exception{
+		ownID=new PeerID();
+		srv=new ServerConnection(server,port,KEEP_ALIVE_TIME,this);
 		fileManager=new FileManager(share,this);
 		downloadMgr=new DownloadManager(this);
-		ownID=new PeerID("nilesh");
-		srv=new ServerConnection(server,port,KEEP_ALIVE_TIME,this);
 		srv.open();
 	}
 	
@@ -42,7 +42,8 @@ public class P2PMain {
 			if(!lf.exists()){
 				f.setFile(lf);
 				int port=downloadMgr.addDownload(f,dr.getSessionID());
-				ReadyReq r = new ReadyReq(pr.getSessionID(),port,ownID);
+				System.out.println("Listening on port :" + port);
+				ReadyReq r = new ReadyReq(pr.getSessionID(),port,ownID,checksum);
 				pr=srv.send(r);
 			}
 		}
@@ -59,7 +60,7 @@ public class P2PMain {
 	
 public static void main(String args[]) throws Exception{
 	P2PMain p=new P2PMain("D:\\Nilesh\\temp","localhost",4869);
-	//boolean t=p.downloadFile("checkSUM","D:\\Nilesh\\abc.txt");
-	//System.out.println(t);
+	P2PMain p2=new P2PMain("D:\\Nilesh\\tt","localhost",4869);
+	boolean t=p2.downloadFile("8199b905043eac27b18739646024a87a","D:\\Nilesh\\abcd.txt");
 }
 }

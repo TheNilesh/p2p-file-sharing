@@ -29,12 +29,14 @@ public class FileManager{
 		
 		watcher=new WatchDir(sharedDirectory.toPath(),false,this);
 		Thread watcherThread=new Thread(watcher);
+		System.out.println("Start Local Scan..");
+		readCurrentFiles();
+		System.out.println("Local Scan Complete\nStarted Listening new file modification events");
+		
 		watcherThread.start();
 	}
 
 	public void fileChanged(File f,int fileStatus) {
-		System.out.println(f.getName() + " is changed");
-		
 		FileInfo fi=null;
 		
 		if(fileStatus==FileStatus.NEW){
@@ -43,19 +45,34 @@ public class FileManager{
 			fi.addSeeder(mainProcess.ownID);
 			localFiles.put(fi.getChecksum(), fi);
 			nameToChk.put(f.getName(), fi.getChecksum());
+			System.out.println("New file: " + f.getName() + "-" + fi.getChecksum());
 		}	
 		else if (fileStatus==FileStatus.DELETE){
 			fi=localFiles.get( nameToChk.get(f.getName())); //search into name 2 chk then into localFiles  
 			localFiles.remove(fi.getChecksum());
 			nameToChk.remove(f.getName());
 			fi.setStatus(FileStatus.DELETE);
-			System.out.println(fi.getStatus());
+			System.out.println("Deleted file: " + f.getName() + "-" + fi.getChecksum());
+		}else if (fileStatus==FileStatus.MODIFY){
+			fileChanged(f,FileStatus.DELETE);
+			fileChanged(f,FileStatus.NEW);
 		}
 		mainProcess.updateFileDB(fi);
 	}
 	
 	public void uploadFileBlock(String checksum, byte[]blocks,PeerInfo p){
 		File f=localFiles.get(checksum).getFile();
+		System.out.println("Upload : " + f.getName() + " to " + p.nick);
 		Uploader u=new Uploader(f,checksum,blocks,p);
+	}
+	
+	void readCurrentFiles(){
+		File[] f=sharedDirectory.listFiles();
+		for(int i=0;i<f.length;i++){
+			if(!f[i].isDirectory()){
+				fileChanged(f[i],FileStatus.NEW);
+				//System.out.println("New:" + f[i].getName());
+			}
+		}
 	}
 }

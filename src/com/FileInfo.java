@@ -28,11 +28,9 @@ public class FileInfo implements Serializable{
 		return name;
 	}
 	public void calculateChecksum(){ //called by peer
-		//System.out.println("Not Implemented");
 			try {
 				checksum=new ShowMD5(file).calculateMD5();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	}
@@ -74,6 +72,14 @@ public class FileInfo implements Serializable{
 	}
 	public void removeSeeder(PeerID p) {
 		hasFile.remove(p);
+	}
+	
+	public HashSet<PeerID> getSeeders(){
+		return hasFile;
+	}
+	
+	public long getLen(){
+		return len;
 	}
 }
 

@@ -22,7 +22,7 @@ public class PeerConnection implements Runnable{
 			ObjectInputStream obis=new ObjectInputStream(peerConnection.getInputStream());
 			P2PRequest req=(P2PRequest)obis.readObject();
 			P2PResponse resp;
-			resp=sm.getResponse(req);
+			resp=sm.getResponse(req,peerConnection.getInetAddress());
 			obos.writeObject(resp);
 			peerConnection.close();
 		}catch(Exception ex){

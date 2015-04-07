@@ -24,15 +24,17 @@ public class Uploader implements Runnable {
 		this.f=f;
 		this.blocks=blocks;
 		this.p=p;
-		this.checksum=checksum.getBytes();
-		new Thread(this).start();;
+		this.checksum=Constants.hexToBytes(checksum);
+		new Thread(this).start();
 		
 	}
 	@Override
 	public void run() {
 		//select block
+		System.out.println("Sending thread started>" + blocks.length );
 		try{
 			for(int i=0;i<blocks.length;i++){
+				System.out.print(blocks[i]);
 				if(blocks[i]==1){
 					upload(i);
 				}
@@ -44,6 +46,7 @@ public class Uploader implements Runnable {
 	
 	void upload(int blockNumber) throws IOException{
 		//open file, read block, send that
+		System.out.println("Sent: <" + blockNumber + ">" );
 		int t;
 		ByteArrayOutputStream baos=new ByteArrayOutputStream(1024);
 		baos.write(BLOCK);
@@ -56,8 +59,7 @@ public class Uploader implements Runnable {
 			if((t=fis.read(buf,0,buf.length))!=-1)
 			{
 				baos.write(buf,0,t);
-				new DatagramSocket().send(new DatagramPacket(baos.toByteArray(),baos.size(),InetAddress.getByName(p.ip),p.port));
-				//	System.out.println("Sent: <" + pieceNumber + "> " + new String(buf,0,t)  );
+				new DatagramSocket().send(new DatagramPacket(baos.toByteArray(),baos.size(),p.ia,p.port));
 			}
 			fis.close();
 		}catch(Exception e){
