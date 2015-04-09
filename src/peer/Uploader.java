@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import com.Constants;
 import com.FileInfo;
@@ -26,15 +27,13 @@ public class Uploader implements Runnable {
 		this.p=p;
 		this.checksum=Constants.hexToBytes(checksum);
 		new Thread(this).start();
-		
 	}
 	@Override
 	public void run() {
 		//select block
-		System.out.println("Sending thread started>" + blocks.length );
+		System.out.println("Sending thread started> Total blocks=" + blocks.length );
 		try{
 			for(int i=0;i<blocks.length;i++){
-				System.out.print(blocks[i]);
 				if(blocks[i]==1){
 					upload(i);
 				}
@@ -66,4 +65,23 @@ public class Uploader implements Runnable {
 			e.printStackTrace();
 		}
 	}
+	
+public static void main(String args[]) throws UnknownHostException{
+	File tf=new File("E:\\TEST1\\news.mpg");
+	int fileSize=(int)tf.length();
+	int BlkCnt=fileSize/Constants.BLOCK_SIZE;
+	BlkCnt=BlkCnt+ (fileSize%Constants.BLOCK_SIZE == 0?0:1);
+	byte[]blk =new byte[BlkCnt];
+	System.out.println("Size= " + tf.length() + " bytes. Divider=" + Constants.BLOCK_SIZE + " Total blocks = " + blk.length);
+	for(int i=0;i<blk.length;i++){
+		blk[i]=1;
+	}
+	
+	int x=57774;
+	FileInfo xx=new FileInfo(tf);
+	xx.calculateChecksum();
+	
+	PeerInfo target=new PeerInfo("nilesh",InetAddress.getLocalHost(),x);
+	Uploader u=new Uploader(tf,xx.getChecksum(),blk,target);
+}
 }

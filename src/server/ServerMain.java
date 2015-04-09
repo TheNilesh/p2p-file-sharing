@@ -1,6 +1,7 @@
 package server;
 
 import java.net.InetAddress;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,9 +17,8 @@ import com.FileInfo;
 
 public class ServerMain{
 public static void main(String args[]){
-	new ServerMain();
+	ServerMain sm=new ServerMain();
 }
-	private static final Logger log = Logger.getLogger( ServerMain.class.getName() );
 	ConnectionManager connectionManager;
 	Thread connMan;
 	ResponseGenerator rg;
@@ -78,11 +78,13 @@ public static void main(String args[]){
 		if(fi!=null){
 			HashSet<PeerID> peers=fi.getSeeders();
 			int peerCnt=peers.size();
-			
-			System.out.println("Size: " + fi.getLen() + "\nPeers count:" + peerCnt);
-			
-			int totalBlocks=(int)fi.getLen() / Constants.BLOCK_SIZE;
+			int fileSize=(int)fi.getLen();
+			int totalBlocks=fileSize / Constants.BLOCK_SIZE;
+			totalBlocks=totalBlocks+ (fileSize%Constants.BLOCK_SIZE == 0?0:1);
 			int equalTask= totalBlocks/peerCnt; //That means each peer should upload this much blocks
+			
+			System.out.println("[TASK] FileName:" + fi.name + " Size:" + fileSize + " Blocks:" + totalBlocks + "Seeders:" + peerCnt );
+			
 			Iterator<PeerID >itPeers=peers.iterator();
 			int j=0;
 			while(itPeers.hasNext()){
@@ -98,5 +100,21 @@ public static void main(String args[]){
 			}
 			
 		}
+	}
+	
+	HashSet<FileInfo> searchFiles(HashSet<String> query){
+		FileInfo fi;
+		HashSet<FileInfo> match=new HashSet<FileInfo>();
+		Collection<FileInfo> files=filesAvailable.values();
+		Iterator<FileInfo> it=files.iterator();
+		while(it.hasNext()){
+			fi=it.next();
+			if(fi.tagMatches(query)){
+				System.out.println(fi);
+				match.add(fi);
+			}
+		}
+		
+		return match;
 	}
 }

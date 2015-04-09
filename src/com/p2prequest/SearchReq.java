@@ -11,4 +11,8 @@ public class SearchReq extends P2PRequest {
 		super(p);
 		this.searchTags=searchTags;
 	}
+	
+	public HashSet<String> getTags(){
+		return searchTags;
+	}
 }

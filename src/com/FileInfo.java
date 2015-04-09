@@ -53,7 +53,7 @@ public class FileInfo implements Serializable{
 		return hasFile.add(p);
 	}
 	
-	boolean tagMatches(HashSet<String> toSearch){
+	public boolean tagMatches(HashSet<String> toSearch){
 		HashSet<String> sample=new HashSet<String>(tags);
 		sample.retainAll(toSearch);
 		return (sample.isEmpty()?false:true);
@@ -80,6 +80,14 @@ public class FileInfo implements Serializable{
 	
 	public long getLen(){
 		return len;
+	}
+	
+	public byte[] getBlocks(){ //sparse matrix for blocks o file
+		int fileSize=(int)len;
+		int BlkCnt=fileSize/Constants.BLOCK_SIZE;
+		BlkCnt=BlkCnt+ (fileSize%Constants.BLOCK_SIZE == 0?0:1);
+		byte[]blk =new byte[BlkCnt];
+		return blk;
 	}
 }
 

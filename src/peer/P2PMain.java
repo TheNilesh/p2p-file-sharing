@@ -18,7 +18,7 @@ public class P2PMain {
 	private final DownloadManager downloadMgr;
 	public static final long KEEP_ALIVE_TIME=60000;
 	
-	P2PMain(String share,String server,int port) throws Exception{
+	public P2PMain(String share,String server,int port) throws Exception{
 		ownID=new PeerID();
 		srv=new ServerConnection(server,port,KEEP_ALIVE_TIME,this);
 		fileManager=new FileManager(share,this);
@@ -27,7 +27,8 @@ public class P2PMain {
 	}
 	
 	public HashSet<FileInfo> SearchFile(HashSet<String> searchTags){
-		SearchResponse sr = (SearchResponse) srv.send(new SearchReq(searchTags,ownID));
+		P2PResponse pr =srv.send(new SearchReq(searchTags,ownID));
+		SearchResponse sr =(SearchResponse)pr;
 		return sr.getFiles();
 	}
 	
@@ -60,7 +61,13 @@ public class P2PMain {
 	
 public static void main(String args[]) throws Exception{
 	P2PMain p=new P2PMain("D:\\Nilesh\\temp","localhost",4869);
-	P2PMain p2=new P2PMain("D:\\Nilesh\\tt","localhost",4869);
-	boolean t=p2.downloadFile("8199b905043eac27b18739646024a87a","D:\\Nilesh\\abcd.txt");
+	//P2PMain p2=new P2PMain("D:\\Nilesh\\tt","localhost",4869);
+	boolean t=p.downloadFile("b49a8626b6668dc3a3fb7bc9a9fba2a2","D:\\Nilesh\\tt\\abcd.txt");
+	//HashSet<String> searchQ=new HashSet<String>();
+	//searchQ.add("memories.txt");
+	//Thread.sleep(1000);
+	//p.SearchFile(searchQ);
+	//HashSet<FileInfo> result=p.SearchFile(searchQ);
+	//System.out.println(result.size());
 }
 }

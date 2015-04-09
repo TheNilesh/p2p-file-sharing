@@ -1,16 +1,19 @@
 package server;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import com.DownloadResponse;
 import com.FileInfo;
 import com.FileStatus;
 import com.P2PResponse;
 import com.Req;
+import com.SearchResponse;
 import com.p2prequest.DownloadReq;
 import com.p2prequest.LocalFileReportReq;
 import com.p2prequest.P2PRequest;
 import com.p2prequest.ReadyReq;
+import com.p2prequest.SearchReq;
 import com.TaskResponse;
 
 public class ResponseGenerator {
@@ -68,7 +71,10 @@ public class ResponseGenerator {
 			presp.setDescription("OK");
 			break;
 		case Req.SEARCH:
-			presp=new P2PResponse(request.getReqID(),true);
+			SearchReq sr=(SearchReq)request;
+			//SearchResponse sResp=new SearchResponse();
+			sm.searchFiles(sr.getTags());
+			presp=new SearchResponse(request.getReqID(),true,sm.searchFiles(sr.getTags()));
 			presp.setDescription("OK");
 			break;
 		case Req.UNJOIN:
