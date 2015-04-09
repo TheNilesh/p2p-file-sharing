@@ -3,6 +3,7 @@ package peer;
 import java.io.File;
 import java.util.HashSet;
 
+import com.Constants;
 import com.DownloadResponse;
 import com.FileInfo;
 import com.P2PResponse;
@@ -26,10 +27,12 @@ public class P2PMain {
 		srv.open();
 	}
 	
-	public HashSet<FileInfo> SearchFile(HashSet<String> searchTags){
-		P2PResponse pr =srv.send(new SearchReq(searchTags,ownID));
+	public FileInfo[] searchFile(String querry){
+		P2PResponse pr =srv.send(new SearchReq(querry,ownID));
 		SearchResponse sr =(SearchResponse)pr;
-		return sr.getFiles();
+		HashSet<FileInfo> tmp1=sr.getFiles();
+		FileInfo[] tmp2=tmp1.toArray(new FileInfo[tmp1.size()]);
+		return tmp2;
 	}
 	
 	public boolean downloadFile(String checksum,String localName){
@@ -38,12 +41,12 @@ public class P2PMain {
 		if(dr.getStatus()==true){
 			//create new Download
 			FileInfo f=dr.getFile();
-			File lf=new File(localName);
+			File lf=new File(fileManager.getSharedDir() + "\\" +  localName);
 			
 			if(!lf.exists()){
 				f.setFile(lf);
+				fileManager.ignoreFile(lf);
 				int port=downloadMgr.addDownload(f,dr.getSessionID());
-				System.out.println("Listening on port :" + port);
 				ReadyReq r = new ReadyReq(pr.getSessionID(),port,ownID,checksum);
 				pr=srv.send(r);
 			}
@@ -51,7 +54,8 @@ public class P2PMain {
 		return pr.getStatus(); //false if file could not be located
 	}
 	
-	public void updateFileDB(FileInfo fi){ // if file is modified update to server 
+	public void updateFileDB(FileInfo fi){ // if file is modified update to server
+		
 		srv.send(new LocalFileReportReq(fi,ownID));
 	}
 	
@@ -60,14 +64,8 @@ public class P2PMain {
 	}
 	
 public static void main(String args[]) throws Exception{
-	P2PMain p=new P2PMain("D:\\Nilesh\\temp","localhost",4869);
+	P2PMain p=new P2PMain("E:\\TEST1","localhost",Constants.PORT);
 	//P2PMain p2=new P2PMain("D:\\Nilesh\\tt","localhost",4869);
-	boolean t=p.downloadFile("b49a8626b6668dc3a3fb7bc9a9fba2a2","D:\\Nilesh\\tt\\abcd.txt");
-	//HashSet<String> searchQ=new HashSet<String>();
-	//searchQ.add("memories.txt");
-	//Thread.sleep(1000);
-	//p.SearchFile(searchQ);
-	//HashSet<FileInfo> result=p.SearchFile(searchQ);
-	//System.out.println(result.size());
+
 }
 }

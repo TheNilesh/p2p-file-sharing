@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import server.gui.ServerWindow;
+
 import com.Constants;
 import com.P2PResponse;
 import com.PeerID;
@@ -17,19 +19,22 @@ import com.FileInfo;
 
 public class ServerMain{
 public static void main(String args[]){
-	ServerMain sm=new ServerMain();
+	//ServerMain sm=new ServerMain(4689,null);
 }
+
+	private ServerWindow ui;
 	ConnectionManager connectionManager;
 	Thread connMan;
 	ResponseGenerator rg;
 	HashMap<String,FileInfo> filesAvailable;
 	HashMap<String,PeerID> peersAlive;
 	
-	ServerMain(){
+	public ServerMain(ServerWindow ui,int port){
+		this.ui=ui;
 		filesAvailable=new HashMap<String,FileInfo>();
 		peersAlive=new HashMap<String,PeerID>();
 		
-		connectionManager=new ConnectionManager(this, 4869);
+		connectionManager=new ConnectionManager(this, port);
 		connMan=new Thread(connectionManager);
 		connMan.start();
 		rg=new ResponseGenerator(this);
@@ -41,7 +46,10 @@ public static void main(String args[]){
 	}
 	
 	void addPeer(PeerID p){
-		peersAlive.put(p.nick, p);
+		if(!peersAlive.containsKey(p.nick)){
+			peersAlive.put(p.nick, p);
+			ui.addPeer(p.nick);
+		}			
 	}
 	
 	void addFile(FileInfo f,PeerID p){
@@ -49,6 +57,7 @@ public static void main(String args[]){
 		if(fServer == null){ //file not available on server
 			filesAvailable.put(f.getChecksum(), f);
 			System.out.println("File added ");
+			ui.addFile(f.name);
 		}else{ //file already available
 			fServer.addSeeder(p);
 			System.out.println("File already available. Seeder added.");
@@ -102,7 +111,7 @@ public static void main(String args[]){
 		}
 	}
 	
-	HashSet<FileInfo> searchFiles(HashSet<String> query){
+	HashSet<FileInfo> searchFiles(String query){
 		FileInfo fi;
 		HashSet<FileInfo> match=new HashSet<FileInfo>();
 		Collection<FileInfo> files=filesAvailable.values();

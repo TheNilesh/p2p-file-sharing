@@ -2,6 +2,9 @@ package com;
 
 public class Constants {
 	public static final int BLOCK_SIZE=65000;
+	public static final int PORT=4689;
+	
+	
 	public static byte[] hexToBytes(String s) {
 	    int len = s.length();
 	    byte[] data = new byte[len / 2];

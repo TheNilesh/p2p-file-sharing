@@ -12,6 +12,7 @@ import com.PeerInfo;
 public class FileManager{
 	private P2PMain mainProcess;
 	private HashMap<String,FileInfo> localFiles;
+	private HashSet<String> ignored;
 	private HashMap<String,String>	nameToChk; 
 	private File sharedDirectory;
 	private WatchDir watcher;
@@ -26,6 +27,7 @@ public class FileManager{
 		}
 		localFiles=new  HashMap<String,FileInfo>();
 		nameToChk=new HashMap<String,String>();
+		ignored=new HashSet<String>();
 		
 		watcher=new WatchDir(sharedDirectory.toPath(),false,this);
 		Thread watcherThread=new Thread(watcher);
@@ -38,6 +40,9 @@ public class FileManager{
 
 	public void fileChanged(File f,int fileStatus) {
 		FileInfo fi=null;
+		
+		if(ignored.contains(f.getName())) //This file is created to download
+			return;
 		
 		if(fileStatus==FileStatus.NEW){
 			fi=new FileInfo(f);
@@ -71,8 +76,21 @@ public class FileManager{
 		for(int i=0;i<f.length;i++){
 			if(!f[i].isDirectory()){
 				fileChanged(f[i],FileStatus.NEW);
-				//System.out.println("New:" + f[i].getName());
 			}
 		}
+	}
+	
+	public void ignoreFile(File f){
+		ignored.add(f.getName());
+	}
+	
+	public void cancelIgnoredFile(File f){
+		ignored.remove(f.getName());
+		//also call fileChanged, since its new member
+		fileChanged(f,FileStatus.NEW);
+	}
+	
+	public String getSharedDir(){
+		return sharedDirectory.getPath();
 	}
 }

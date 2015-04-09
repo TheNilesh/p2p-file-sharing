@@ -67,7 +67,7 @@ public class Uploader implements Runnable {
 	}
 	
 public static void main(String args[]) throws UnknownHostException{
-	File tf=new File("E:\\TEST1\\news.mpg");
+	File tf=new File("E:\\TEST1\\aaa.java");
 	int fileSize=(int)tf.length();
 	int BlkCnt=fileSize/Constants.BLOCK_SIZE;
 	BlkCnt=BlkCnt+ (fileSize%Constants.BLOCK_SIZE == 0?0:1);
@@ -77,7 +77,7 @@ public static void main(String args[]) throws UnknownHostException{
 		blk[i]=1;
 	}
 	
-	int x=57774;
+	int x=50042;
 	FileInfo xx=new FileInfo(tf);
 	xx.calculateChecksum();
 	

@@ -40,9 +40,7 @@ public class FileInfo implements Serializable{
 	}
 	
 	public void attachTag(String tag){ //called by server
-		String tmp[]=tag.split(" ");
-		for(int i=0;i<tmp.length;i++)
-			tags.add(tmp[i]);
+			tags.add(tag);
 	}
 	
 	public void setStatus(int status){
@@ -53,10 +51,18 @@ public class FileInfo implements Serializable{
 		return hasFile.add(p);
 	}
 	
-	public boolean tagMatches(HashSet<String> toSearch){
-		HashSet<String> sample=new HashSet<String>(tags);
-		sample.retainAll(toSearch);
-		return (sample.isEmpty()?false:true);
+	public boolean tagMatches(String toSearch){
+		String[] strTags=tags.toArray(new String[tags.size()]);
+		for(int i=0;i<strTags.length;i++){
+			if(strTags[i].contains(toSearch)){
+				return true;
+			}
+			if(toSearch.contains(strTags[i])){
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public int getStatus(){

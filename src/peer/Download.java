@@ -139,10 +139,10 @@ public class Download implements Runnable {
 			return true;
 		}
 public static void main(String args[]) throws SocketException{
-	FileInfo tmp=new FileInfo(new File("E:\\TEST1\\news.mpg"));
+	FileInfo tmp=new FileInfo(new File("E:\\TEST1\\aaa.java"));
 	tmp.calculateChecksum();
 	System.out.println("OLD:" +tmp.getChecksum());
-	tmp.setFile(new File("E:\\TEST1\\news2.mpg"));
+	tmp.setFile(new File("E:\\TEST1\\aaa2.java"));
 	Download d =new Download(tmp,123,null);
 	System.out.println(d.getPort());
 	d.startDownload();

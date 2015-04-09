@@ -17,7 +17,15 @@ import peer.P2PMain;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
 import javax.swing.JProgressBar;
+
+import com.Constants;
+import com.FileInfo;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
 
 public class MainWindow extends JFrame {
 
@@ -54,60 +62,85 @@ public class MainWindow extends JFrame {
 	public MainWindow() {
 		setTitle("Peer to Peer File Sharing");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 433, 317);
+		setBounds(100, 100, 674, 446);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
-		JLabel lblSearchFiles = new JLabel("Search Files :");
-		lblSearchFiles.setBounds(10, 23, 82, 21);
-		contentPane.add(lblSearchFiles);
-		
-		textField = new JTextField();
-		textField.setBounds(102, 23, 200, 21);
-		contentPane.add(textField);
-		textField.setColumns(10);
-		
-		btnSearch = new JButton("Search");
-		btnSearch.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-			}
-		});
-		btnSearch.setBounds(311, 22, 89, 23);
-		contentPane.add(btnSearch);
-		
-		JSeparator separator = new JSeparator();
-		separator.setBounds(10, 54, 390, 9);
-		contentPane.add(separator);
-		
-		table = new JTable();
-		jScrollPane2 = new javax.swing.JScrollPane();
 		dft = new DefaultTableModel();
-		table.setModel(dft);
-		jScrollPane2.setViewportView(table);
 		dft.addColumn("File Name");
 		dft.addColumn("Tags");
 		dft.addColumn("Size(KB)");
 		dft.addColumn("Seeders");
 		dft.addColumn("Checksum");
 		
-		jScrollPane2.setBounds(10, 60, 390, 170);
-		contentPane.add(jScrollPane2);
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setBounds(10, 13, 636, 384);
+		contentPane.add(tabbedPane);
 		
-		JProgressBar progressBar = new JProgressBar();
-		progressBar.setBounds(10, 254, 390, 14);
-		contentPane.add(progressBar);
+		JPanel panel = new JPanel();
+		tabbedPane.addTab("Local", null, panel, null);
+		panel.setLayout(null);
 		
-		JLabel lblIdle = new JLabel("Idle");
-		lblIdle.setBounds(10, 241, 390, 14);
-		contentPane.add(lblIdle);
-		dft.addRow(new Object[] { "cnme", "12","6566", "file" });
-		dft.addRow(new Object[] { "cnme", "12","6566", "file" });
+		JPanel panel_1 = new JPanel();
+		tabbedPane.addTab("Search", null, panel_1, null);
+		panel_1.setLayout(null);
+		
+		table = new JTable();
+		jScrollPane2 = new javax.swing.JScrollPane();
+		jScrollPane2.setBounds(10, 92, 611, 230);
+		panel_1.add(jScrollPane2);
+		table.setModel(dft);
+		jScrollPane2.setViewportView(table);
+		
+		btnSearch = new JButton("Search");
+		btnSearch.setBounds(427, 58, 89, 23);
+		panel_1.add(btnSearch);
+		
+		textField = new JTextField();
+		textField.setBounds(196, 59, 225, 21);
+		panel_1.add(textField);
+		textField.setColumns(10);
+		
+		JLabel lblSearchFiles = new JLabel("Search Files :");
+		lblSearchFiles.setBounds(31, 60, 155, 21);
+		panel_1.add(lblSearchFiles);
+		
+		JToolBar toolBar = new JToolBar();
+		toolBar.setBounds(31, 11, 402, 32);
+		panel_1.add(toolBar);
+		
+		JButton btnDownload = new JButton("Download");
+		btnDownload.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int selRow=table.getSelectedRow();
+				if(selRow>=0){
+					String checksum=(String)table.getValueAt(selRow,4);
+					String localName=(String)table.getValueAt(selRow, 0);
+					System.out.println("Download? " + checksum + " " + localName);
+					System.out.println(p2pMain.downloadFile(checksum, localName));
+				}
+			}
+		});
+		toolBar.add(btnDownload);
+		btnSearch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (dft.getRowCount() > 0) {
+				    for (int i = dft.getRowCount() - 1; i > -1; i--) {
+				        dft.removeRow(i);
+				    }
+				}
+				btnSearch.setEnabled(false);
+				FileInfo[] tmp1= p2pMain.searchFile(textField.getText());
+				for(int i=0;i<tmp1.length;i++){
+					dft.addRow(new Object[]{tmp1[i].name,"",tmp1[i].getLen()/1024,tmp1[i].getSeeders().size(),tmp1[i].getChecksum()});
+				}
+				btnSearch.setEnabled(true);
+			}
+		});
 		
 		try {
-		//	p2pMain=new P2PMain("E:\\MOVIES","localhost",4689);
+			p2pMain=new P2PMain("E:\\TEST1","localhost",Constants.PORT);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

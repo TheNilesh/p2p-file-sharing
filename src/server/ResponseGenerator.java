@@ -42,10 +42,11 @@ public class ResponseGenerator {
 			}
 			break;
 		case Req.DOWNLOAD_REQ:
-			//System.out.println("Local files:" + sm.filesAvailable.size());
 			DownloadReq dr=(DownloadReq)request;
 			fi=sm.requestFileDownload(dr.getChecksum());
-			System.out.println(fi.name + " requested hold by " + fi.getSeeders().size());
+			if(fi!=null){
+				System.out.println(fi.name + " requested hold by " + fi.getSeeders().size());
+			}
 			presp=new DownloadResponse(request.getReqID(),fi!=null,fi);
 			presp.setDescription("Download_Req_will_be handled : ");
 			break;
@@ -72,10 +73,10 @@ public class ResponseGenerator {
 			break;
 		case Req.SEARCH:
 			SearchReq sr=(SearchReq)request;
-			//SearchResponse sResp=new SearchResponse();
-			sm.searchFiles(sr.getTags());
-			presp=new SearchResponse(request.getReqID(),true,sm.searchFiles(sr.getTags()));
-			presp.setDescription("OK");
+			System.out.println("Search request:" + sr.getSearchText());
+			HashSet<FileInfo> tmp1=sm.searchFiles(sr.getSearchText());
+			presp=new SearchResponse(request.getReqID(),!tmp1.isEmpty(),tmp1);
+			presp.setDescription("Text Searched and result returned");
 			break;
 		case Req.UNJOIN:
 			presp=new P2PResponse(request.getReqID(),true);
