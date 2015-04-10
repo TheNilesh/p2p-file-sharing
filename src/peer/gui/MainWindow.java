@@ -26,6 +26,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import java.util.Vector;
+import javax.swing.ListSelectionModel;
+import javax.swing.JScrollPane;
 
 public class MainWindow extends JFrame {
 
@@ -34,12 +37,16 @@ public class MainWindow extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField textField;
+	private JTextField txtSearch;
 	private JButton btnSearch;
-	private JTable table;
-	public DefaultTableModel dft;
+	private JTable tblSearchResult;
+	public DefaultTableModel dftSearch;
 	private javax.swing.JScrollPane jScrollPane2;
 	private P2PMain p2pMain;
+	private JTextField txtPeerID;
+	private JTextField txtPeerBW;
+	private JTextField txtTracker;
+	private JTextField txtShareDir;
 	/**
 	 * Launch the application.
 	 */
@@ -67,80 +74,145 @@ public class MainWindow extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		dft = new DefaultTableModel();
-		dft.addColumn("File Name");
-		dft.addColumn("Tags");
-		dft.addColumn("Size(KB)");
-		dft.addColumn("Seeders");
-		dft.addColumn("Checksum");
+		dftSearch = new DefaultTableModel();
+		dftSearch.addColumn("File Name");
+		dftSearch.addColumn("Tags");
+		dftSearch.addColumn("Size(KB)");
+		dftSearch.addColumn("Seeders");
+		dftSearch.addColumn("Checksum");
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane.setBounds(10, 13, 636, 384);
+		tabbedPane.setBounds(10, 13, 636, 362);
 		contentPane.add(tabbedPane);
 		
-		JPanel panel = new JPanel();
-		tabbedPane.addTab("Local", null, panel, null);
-		panel.setLayout(null);
+		JPanel pnlSearch = new JPanel();
+		tabbedPane.addTab("Search", null, pnlSearch, null);
+		pnlSearch.setLayout(null);
 		
-		JPanel panel_1 = new JPanel();
-		tabbedPane.addTab("Search", null, panel_1, null);
-		panel_1.setLayout(null);
-		
-		table = new JTable();
+		tblSearchResult = new JTable();
 		jScrollPane2 = new javax.swing.JScrollPane();
 		jScrollPane2.setBounds(10, 92, 611, 230);
-		panel_1.add(jScrollPane2);
-		table.setModel(dft);
-		jScrollPane2.setViewportView(table);
+		pnlSearch.add(jScrollPane2);
+		tblSearchResult.setModel(dftSearch);
+		jScrollPane2.setViewportView(tblSearchResult);
 		
 		btnSearch = new JButton("Search");
 		btnSearch.setBounds(427, 58, 89, 23);
-		panel_1.add(btnSearch);
+		pnlSearch.add(btnSearch);
 		
-		textField = new JTextField();
-		textField.setBounds(196, 59, 225, 21);
-		panel_1.add(textField);
-		textField.setColumns(10);
+		txtSearch = new JTextField();
+		txtSearch.setBounds(196, 59, 225, 21);
+		pnlSearch.add(txtSearch);
+		txtSearch.setColumns(10);
 		
 		JLabel lblSearchFiles = new JLabel("Search Files :");
 		lblSearchFiles.setBounds(31, 60, 155, 21);
-		panel_1.add(lblSearchFiles);
+		pnlSearch.add(lblSearchFiles);
 		
 		JToolBar toolBar = new JToolBar();
 		toolBar.setBounds(31, 11, 402, 32);
-		panel_1.add(toolBar);
+		pnlSearch.add(toolBar);
 		
 		JButton btnDownload = new JButton("Download");
 		btnDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int selRow=table.getSelectedRow();
+				int selRow=tblSearchResult.getSelectedRow();
 				if(selRow>=0){
-					String checksum=(String)table.getValueAt(selRow,4);
-					String localName=(String)table.getValueAt(selRow, 0);
+					String checksum=(String)tblSearchResult.getValueAt(selRow,4);
+					String localName=(String)tblSearchResult.getValueAt(selRow, 0);
 					System.out.println("Download? " + checksum + " " + localName);
 					System.out.println(p2pMain.downloadFile(checksum, localName));
 				}
 			}
 		});
 		toolBar.add(btnDownload);
+		
+		JPanel pnlDownloads = new JPanel();
+		tabbedPane.addTab("Downloads", null, pnlDownloads, null);
+		pnlDownloads.setLayout(null);
+		
+		JPanel pnlTasks = new JPanel();
+		tabbedPane.addTab("Tasks", null, pnlTasks, null);
+		pnlTasks.setLayout(null);
+		
+		JPanel pnlSettings = new JPanel();
+		tabbedPane.addTab("Settings", null, pnlSettings, null);
+		pnlSettings.setLayout(null);
+		
+		txtPeerID = new JTextField();
+		txtPeerID.setEditable(false);
+		txtPeerID.setBounds(154, 58, 233, 20);
+		pnlSettings.add(txtPeerID);
+		txtPeerID.setColumns(10);
+		
+		JLabel lblPeerID = new JLabel("Peer ID");
+		lblPeerID.setBounds(48, 58, 86, 20);
+		pnlSettings.add(lblPeerID);
+		
+		JLabel lblPeerBandwidth = new JLabel("Peer Bandwidth");
+		lblPeerBandwidth.setBounds(48, 94, 104, 20);
+		pnlSettings.add(lblPeerBandwidth);
+		
+		txtPeerBW = new JTextField();
+		txtPeerBW.setEditable(false);
+		txtPeerBW.setBounds(154, 94, 75, 20);
+		pnlSettings.add(txtPeerBW);
+		txtPeerBW.setColumns(10);
+		
+		JButton btnCalculateBW = new JButton("Re-calculate");
+		btnCalculateBW.setBounds(239, 93, 148, 23);
+		pnlSettings.add(btnCalculateBW);
+		
+		JLabel lblCentralisedTracker = new JLabel("Centralised Tracker:");
+		lblCentralisedTracker.setBounds(48, 128, 104, 23);
+		pnlSettings.add(lblCentralisedTracker);
+		
+		txtTracker = new JTextField();
+		txtTracker.setText("localhost:4689");
+		txtTracker.setBounds(154, 129, 233, 20);
+		pnlSettings.add(txtTracker);
+		txtTracker.setColumns(10);
+		
+		JLabel lblSharedDirectory = new JLabel("Shared Directory :");
+		lblSharedDirectory.setBounds(48, 170, 104, 20);
+		pnlSettings.add(lblSharedDirectory);
+		
+		txtShareDir = new JTextField();
+		txtShareDir.setText("E:\\TEST1");
+		txtShareDir.setBounds(154, 170, 233, 20);
+		pnlSettings.add(txtShareDir);
+		txtShareDir.setColumns(10);
+		
+		JButton btnSave = new JButton("Save");
+		btnSave.setBounds(298, 212, 89, 23);
+		pnlSettings.add(btnSave);
+		
+		JPanel pnlAbout = new JPanel();
+		tabbedPane.addTab("About", null, pnlAbout, null);
+		pnlAbout.setLayout(null);
+		
+		JLabel lblConnectingToServer = new JLabel("Connecting to server...");
+		lblConnectingToServer.setBounds(10, 382, 269, 15);
+		contentPane.add(lblConnectingToServer);
 		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (dft.getRowCount() > 0) {
-				    for (int i = dft.getRowCount() - 1; i > -1; i--) {
-				        dft.removeRow(i);
+				if (dftSearch.getRowCount() > 0) {
+				    for (int i = dftSearch.getRowCount() - 1; i > -1; i--) {
+				        dftSearch.removeRow(i);
 				    }
 				}
 				btnSearch.setEnabled(false);
-				FileInfo[] tmp1= p2pMain.searchFile(textField.getText());
+				FileInfo[] tmp1= p2pMain.searchFile(txtSearch.getText());
 				for(int i=0;i<tmp1.length;i++){
-					dft.addRow(new Object[]{tmp1[i].name,"",tmp1[i].getLen()/1024,tmp1[i].getSeeders().size(),tmp1[i].getChecksum()});
+					dftSearch.addRow(new Object[]{tmp1[i].name,"",tmp1[i].getLen()/1024,tmp1[i].getSeeders().size(),tmp1[i].getChecksum()});
 				}
 				btnSearch.setEnabled(true);
 			}
 		});
 		
 		try {
-			p2pMain=new P2PMain("E:\\TEST1","localhost",Constants.PORT);
+			//p2pMain=new P2PMain("D:\\Nilesh\\Study","localhost",Constants.PORT);
+			//dftSearchFiles.addRow(new Object[]{"Hey","Guys","how"});
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

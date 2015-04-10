@@ -16,6 +16,7 @@ import server.ServerMain;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JLabel;
 
 public class ServerWindow extends JFrame {
 
@@ -56,13 +57,21 @@ public class ServerWindow extends JFrame {
 		
 		listModel = new DefaultListModel();
 		list = new JList(listModel);
-		list.setBounds(30, 44, 130, 153);
+		list.setBounds(30, 44, 130, 189);
 		contentPane.add(list);
 		
 		lstFileModel = new DefaultListModel();
 		listFiles = new JList(lstFileModel);
-		listFiles.setBounds(194, 44, 230, 153);
+		listFiles.setBounds(194, 44, 230, 189);
 		contentPane.add(listFiles);
+		
+		JLabel lblPeersConnected = new JLabel("Peers Connected");
+		lblPeersConnected.setBounds(31, 23, 109, 14);
+		contentPane.add(lblPeersConnected);
+		
+		JLabel lblSharedFiles = new JLabel("Shared Files:");
+		lblSharedFiles.setBounds(194, 23, 142, 14);
+		contentPane.add(lblSharedFiles);
 		
 		serverMain=new ServerMain(this,Constants.PORT);
 	}
