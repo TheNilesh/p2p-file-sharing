@@ -1,6 +1,5 @@
 package peer.gui;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -47,6 +46,8 @@ public class MainWindow extends JFrame {
 	private JTextField txtPeerBW;
 	private JTextField txtTracker;
 	private JTextField txtShareDir;
+	private JTable tblTasks;
+	private JTable tblDownloads;
 	/**
 	 * Launch the application.
 	 */
@@ -131,9 +132,27 @@ public class MainWindow extends JFrame {
 		tabbedPane.addTab("Downloads", null, pnlDownloads, null);
 		pnlDownloads.setLayout(null);
 		
+		JScrollPane scrDownloads = new JScrollPane();
+		scrDownloads.setBounds(29, 61, 559, 262);
+		pnlDownloads.add(scrDownloads);
+		
+		tblDownloads = new JTable();
+		scrDownloads.setViewportView(tblDownloads);
+		
+		JLabel lblThisIsThe = new JLabel("This is the list of background tasks being executed on this peer.");
+		lblThisIsThe.setBounds(32, 11, 430, 31);
+		pnlDownloads.add(lblThisIsThe);
+		
 		JPanel pnlTasks = new JPanel();
 		tabbedPane.addTab("Tasks", null, pnlTasks, null);
 		pnlTasks.setLayout(null);
+		
+		JScrollPane scrTasks = new JScrollPane();
+		scrTasks.setBounds(45, 35, 453, 204);
+		pnlTasks.add(scrTasks);
+		
+		tblTasks = new JTable();
+		scrTasks.setViewportView(tblTasks);
 		
 		JPanel pnlSettings = new JPanel();
 		tabbedPane.addTab("Settings", null, pnlSettings, null);
@@ -211,7 +230,7 @@ public class MainWindow extends JFrame {
 		});
 		
 		try {
-			//p2pMain=new P2PMain("D:\\Nilesh\\Study","localhost",Constants.PORT);
+			p2pMain=new P2PMain("E:\\TEST2","localhost",Constants.PORT);
 			//dftSearchFiles.addRow(new Object[]{"Hey","Guys","how"});
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

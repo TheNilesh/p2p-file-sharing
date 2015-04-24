@@ -4,9 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.Constants;
@@ -31,11 +33,20 @@ public class Uploader implements Runnable {
 	@Override
 	public void run() {
 		//select block
-		System.out.println("Sending thread started> Total blocks=" + blocks.length );
+		System.out.println("Sending thread started>" );
 		try{
 			for(int i=0;i<blocks.length;i++){
-				if(blocks[i]==1){
-					upload(i);
+				if(blocks[i]==BLOCK){
+					uploadData(i);
+				}else if(blocks[i]==CODE){
+					uploadCode(i);
+				}
+				
+				//wait sometime
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			}
 		}catch(IOException e){
@@ -43,41 +54,100 @@ public class Uploader implements Runnable {
 		}
 	}
 	
-	void upload(int blockNumber) throws IOException{
+	void uploadCode(int blockNumber) throws IOException{
 		//open file, read block, send that
+		System.out.println("Sending code: <" + blockNumber + ">" );
+		ByteArrayOutputStream baos=new ByteArrayOutputStream(1024);
+		baos.write(CODE);
+		baos.write(checksum);
+		baos.write(blockNumber);
+			byte[] b1=readBlock(blockNumber);
+			byte[] b2=readBlock(blockNumber+1); //if b2.length< BLOCK_SIZE then??
+			System.out.println("exoring"+ blockNumber + " and "+ (blockNumber+1));
+			byte[] exored=exorBlocks(b1,b2);
+		baos.write(exored,0,exored.length);
+		sendPacket(baos.toByteArray());
+	}
+	
+	private void sendPacket(byte[] packet){
+		DatagramSocket datagramSocket;
+		try {
+			datagramSocket = new DatagramSocket();
+			datagramSocket.send(new DatagramPacket(packet,packet.length,p.ia,p.port));
+			datagramSocket.close();
+		} catch ( IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void uploadData(int blockNumber) throws IOException{
 		System.out.println("Sent: <" + blockNumber + ">" );
 		int t;
 		ByteArrayOutputStream baos=new ByteArrayOutputStream(1024);
 		baos.write(BLOCK);
 		baos.write(checksum);
 		baos.write(blockNumber);
-		try{
-			FileInputStream fis=new FileInputStream(f);
-			fis.skip(blockNumber*Constants.BLOCK_SIZE);
-			byte[] buf=new byte[Constants.BLOCK_SIZE];
-			if((t=fis.read(buf,0,buf.length))!=-1)
-			{
-				baos.write(buf,0,t);
-				new DatagramSocket().send(new DatagramPacket(baos.toByteArray(),baos.size(),p.ia,p.port));
-			}
-			fis.close();
-		}catch(Exception e){
-			e.printStackTrace();
+		byte[] blk=readBlock(blockNumber);
+		baos.write(blk,0,blk.length);
+		
+		sendPacket(baos.toByteArray());
+	}
+	
+	private byte[] readBlock(int blockNumber) {
+		File file=f;
+		byte []tmp=null;
+		
+		try {
+		  FileInputStream fis=new FileInputStream(file);
+		  tmp=new byte[Constants.BLOCK_SIZE];
+		   try {
+			   fis.skip(blockNumber*Constants.BLOCK_SIZE);
+		       int arrSize=fis.read(tmp);
+		       
+		       if(arrSize<Constants.BLOCK_SIZE){
+		    	   if(arrSize==-1){ //read failed
+		    		   fis.close();
+		    		   return null;
+		    	   }
+		    	   byte[] tmp2=new byte[arrSize];
+		    	   System.arraycopy(tmp, 0, tmp2, 0, tmp2.length);
+		    	   tmp=tmp2; //shrink array
+		       }
+		       
+		   } finally {
+		      fis.close();
+		   }
+		} catch (IOException ex) {
+		   	ex.printStackTrace();
 		}
+		return tmp;
+	}
+	
+	private byte[] exorBlocks(byte[] b1, byte[] b2) {
+		byte[] exored=new byte[b1.length];
+		
+		for(int i=0;i<b1.length;i++){ //exoring
+			exored[i]=(byte) ((int) b1[i]^(int)b2[i]);
+		}
+		
+		return exored;
 	}
 	
 public static void main(String args[]) throws UnknownHostException{
-	File tf=new File("E:\\TEST1\\aaa.java");
+	File tf=new File("E:\\TEST1\\a.pdf");
 	int fileSize=(int)tf.length();
 	int BlkCnt=fileSize/Constants.BLOCK_SIZE;
 	BlkCnt=BlkCnt+ (fileSize%Constants.BLOCK_SIZE == 0?0:1);
 	byte[]blk =new byte[BlkCnt];
 	System.out.println("Size= " + tf.length() + " bytes. Divider=" + Constants.BLOCK_SIZE + " Total blocks = " + blk.length);
-	for(int i=0;i<blk.length;i++){
-		blk[i]=1;
-	}
+	//for(int i=0;i<blk.length;i++){
+	//	blk[i]=1;
+	//}
+	blk[0]=0;
+	blk[1]=1;
+	blk[2]=0;
 	
-	int x=50042;
+	int x=65198;
 	FileInfo xx=new FileInfo(tf);
 	xx.calculateChecksum();
 	

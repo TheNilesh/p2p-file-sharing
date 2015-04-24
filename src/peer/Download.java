@@ -2,6 +2,7 @@ package peer;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,7 +23,8 @@ public class Download implements Runnable {
 	FileInfo f;
 	private boolean downloadComplete;
 	private byte[] blocks;
-	private static final int RECEIVED=11;
+	private static final int REC_DATA=11;
+	private static final int REC_CODE=12;
 	
 		Download(FileInfo f,int sessionID, DownloadManager dm) throws SocketException{
 			this.dm=dm;
@@ -54,7 +56,7 @@ public class Download implements Runnable {
 				while(!downloadComplete)
 				{
 					ds.receive(p);
-					byte[] temp=p.getData();	//array length is = buf.length, so we need another smaller array
+					byte[] temp=p.getData();	//array length is = buf.length, so we need another smaller array exactly = size of data
 					byte[] packet= new byte[p.getLength()];
 					System.arraycopy(temp,0,packet,0,p.getLength());
 					System.out.println("Message[" + p.getLength() + "]: ");	//incoming message
@@ -73,7 +75,7 @@ public class Download implements Runnable {
 			ByteArrayInputStream bis=new ByteArrayInputStream(packet);
 			
 			try {
-				bis.read(tmp); //what to do with block?
+				bis.read(tmp); //what to do with block? is it data or code
 				bis.read(chk); //checksum
 				checksum=Constants.bytesToHex(chk);//convert checksum back into String
 				blockNumber=bis.read();	//Which location
@@ -83,11 +85,11 @@ public class Download implements Runnable {
 				if(!checksum.equals(f.getChecksum())){
 					System.out.println("Error :checksum does not match.");
 				}else{
-					if(tmp[0]==1){ 							//type of packet is block
-						storeToFile(blockNumber,payload);
+					if(tmp[0]==1){ 							//type of packet is data_block
+						dataReceived(blockNumber,payload);
 						checkIfComplete();
 					}else if(tmp[0]==2){						//packet contains code
-						
+						codeReceived(blockNumber,payload);
 					}
 				}
 			} catch (IOException e) {
@@ -95,14 +97,115 @@ public class Download implements Runnable {
 			}
 		}
 		
-		void storeToFile(int blockNumber, byte[] payload){
+		private void codeReceived(int blockNumber, byte[] payload) {
+			// Consider this as contigeous blocks [##], [#_], [_#],[X#],[#X]
+			byte[] tmp;
+			//pair with blockNumber+1, blockNumber is always even if its payload is CODE
+			if(blocks[blockNumber]==REC_DATA){ //[#_]
+				tmp=readBlock(blockNumber);
+				tmp=exorBlocks(payload,tmp);
+				storeToFile(blockNumber+1,tmp);
+				blocks[blockNumber+1]=REC_DATA;	//mark block received
+			}else if(blocks[blockNumber+1]==REC_DATA){ //[_#]
+				tmp=readBlock(blockNumber+1);
+				tmp=exorBlocks(payload,tmp);
+				storeToFile(blockNumber,tmp);
+				blocks[blockNumber+1]=REC_DATA;	//mark block received
+			}else{								// [_ _],
+				storeToFile(blockNumber,payload);
+				storeToFile(blockNumber+1,payload);
+				blocks[blockNumber]=REC_CODE;
+				blocks[blockNumber+1]=REC_CODE; //[XX]
+			}
+
+		}
+		
+		private void dataReceived(int blockNumber,byte[] payload){
+			byte[] tmp;
+	
+			if(blockNumber%2==0){ //[#_] this is lower block
+				if(blocks[blockNumber]==REC_CODE){ //[XX]
+					tmp=readBlock(blockNumber); //this is code
+					tmp=exorBlocks(tmp,payload);
+					storeToFile(blockNumber,payload);
+					blocks[blockNumber]=REC_DATA;
+					storeToFile(blockNumber+1,tmp);
+					blocks[blockNumber+1]=REC_DATA;
+				}else if(blocks[blockNumber]==REC_DATA){
+					//we already have that block
+				}else{
+					storeToFile(blockNumber,payload);
+					blocks[blockNumber]=REC_DATA;
+				}
+				
+				
+			}else{ //[_#], upper block
+				if(blocks[blockNumber]==REC_CODE){ //[XX]
+					tmp=readBlock(blockNumber); //this is code
+					tmp=exorBlocks(tmp,payload);
+					storeToFile(blockNumber,payload);
+					blocks[blockNumber]=REC_DATA;
+					storeToFile(blockNumber-1,tmp);
+					blocks[blockNumber-1]=REC_DATA; //[##]
+				}else if(blocks[blockNumber]==REC_DATA){
+					//we already have that block
+				}else{
+					storeToFile(blockNumber,payload);
+					blocks[blockNumber]=REC_DATA;
+				}
+				
+			}
+		}
+		
+		private byte[] exorBlocks(byte[] b1, byte[] b2) {
+			byte[] exored=new byte[b1.length];
+			
+			for(int i=0;i<b1.length;i++){ //exoring
+				exored[i]=(byte) ((byte) b1[i]^b2[i]);
+			}
+			
+			return exored;
+		}
+		
+		private byte[] readBlock(int blockNumber) {
+			File file=f.getFile();
+			byte []tmp=null;
+			
+			try {
+			  FileInputStream fis=new FileInputStream(file);
+			  tmp=new byte[Constants.BLOCK_SIZE];
+			   try {
+				   fis.skip(blockNumber*Constants.BLOCK_SIZE);
+			       int arrSize=fis.read(tmp);
+			       
+			       if(arrSize<Constants.BLOCK_SIZE){
+			    	   if(arrSize==-1){ //read failed
+			    		   fis.close();
+			    		   return null;
+			    	   }
+			    	   byte[] tmp2=new byte[arrSize];
+			    	   System.arraycopy(tmp, 0, tmp2, 0, tmp2.length);
+			    	   tmp=tmp2; //shrink array
+			       }
+			       
+			   } finally {
+			      fis.close();
+			   }
+			} catch (IOException ex) {
+			   	ex.printStackTrace();
+			}
+			return tmp;
+		}
+		
+		private void storeToFile(int blockNumber, byte[] payload){
 			File file=f.getFile();
 			try {
 			  RandomAccessFile out=new RandomAccessFile(file,"rw");
 			   try {
+				   System.out.println("putting data at loc" + blockNumber*Constants.BLOCK_SIZE);
 			       out.seek(blockNumber*Constants.BLOCK_SIZE);
 			       out.write(payload);
-			       blocks[blockNumber]=RECEIVED;	//mark block received
+			      
 			   } finally {
 			       out.close();
 			   } 
@@ -110,6 +213,8 @@ public class Download implements Runnable {
 			   	ex.printStackTrace();
 			}
 		}
+
+		
 		
 		public int getPort(){
 			return ds.getLocalPort();
@@ -130,19 +235,29 @@ public class Download implements Runnable {
 		
 		public boolean checkIfComplete(){
 			for(int i=0;i<blocks.length;i++){
-				if(blocks[i]!=RECEIVED){
-					System.out.println("!" + i + "!");
+				if(blocks[i]!=REC_DATA){
+					System.out.println("Block [" + i + "] not received yet");
 					return false;
 				}
 			}
-			downloadComplete=true;
+			
+			String expChecksum=f.getChecksum();
+			f.calculateChecksum();
+			String actChecksum=f.getChecksum();
+			if(expChecksum.equals(actChecksum)){
+				downloadComplete=true;
+				System.out.println("Download completed verified");
+			}else{
+				System.out.println("Download checksum Failed");
+			}
+			
 			return true;
 		}
 public static void main(String args[]) throws SocketException{
-	FileInfo tmp=new FileInfo(new File("E:\\TEST1\\aaa.java"));
+	FileInfo tmp=new FileInfo(new File("E:\\TEST1\\a.pdf"));
 	tmp.calculateChecksum();
 	System.out.println("OLD:" +tmp.getChecksum());
-	tmp.setFile(new File("E:\\TEST1\\aaa2.java"));
+	tmp.setFile(new File("E:\\TEST1\\a2.pdf"));
 	Download d =new Download(tmp,123,null);
 	System.out.println(d.getPort());
 	d.startDownload();
