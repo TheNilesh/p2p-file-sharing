@@ -93,7 +93,16 @@ public static void main(String args[]){
 			int equalTask= totalBlocks/peerCnt; //That means each peer should upload this much blocks
 			
 			System.out.println("[TASK] FileName:" + fi.name + " Size:" + fileSize + " Blocks:" + totalBlocks + "Seeders:" + peerCnt );
-			
+			/*
+			 * Network coding: 
+			 *  sNode=getClosestSuperNode(downloader);
+			 *  if sNode does not have file then
+			 *  	OnTheFly encode and forward
+			 *  	sendCodingTaskOntheFly(sNode,);
+			 *  else
+			 *  	sendCodingTask(sNode);
+			 *  
+			 */
 			Iterator<PeerID >itPeers=peers.iterator();
 			int j=0;
 			while(itPeers.hasNext()){
@@ -111,7 +120,7 @@ public static void main(String args[]){
 		}
 	}
 	
-	HashSet<FileInfo> searchFiles(String query){
+	HashSet<FileInfo> searchFiles(String query){ //use stringTokenizer
 		FileInfo fi;
 		HashSet<FileInfo> match=new HashSet<FileInfo>();
 		Collection<FileInfo> files=filesAvailable.values();

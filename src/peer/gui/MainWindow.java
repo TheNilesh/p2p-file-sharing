@@ -197,7 +197,7 @@ public class MainWindow extends JFrame {
 		pnlSettings.add(lblSharedDirectory);
 		
 		txtShareDir = new JTextField();
-		txtShareDir.setText("E:\\TEST1");
+		txtShareDir.setText("E:\\TEST2");
 		txtShareDir.setBounds(154, 170, 233, 20);
 		pnlSettings.add(txtShareDir);
 		txtShareDir.setColumns(10);
