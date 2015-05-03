@@ -52,10 +52,13 @@ public class MainWindow extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		
+		final String sharedD=args[0];
+		final String trcker=args[1];
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					MainWindow frame = new MainWindow();
+					MainWindow frame = new MainWindow(trcker,sharedD);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -67,7 +70,7 @@ public class MainWindow extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public MainWindow() {
+	public MainWindow(String trck,String dir) {
 		setTitle("Peer to Peer File Sharing");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 674, 446);
@@ -182,12 +185,12 @@ public class MainWindow extends JFrame {
 		btnCalculateBW.setBounds(239, 93, 148, 23);
 		pnlSettings.add(btnCalculateBW);
 		
-		JLabel lblCentralisedTracker = new JLabel("Centralised Tracker:");
+		JLabel lblCentralisedTracker = new JLabel("Superpeer:");
 		lblCentralisedTracker.setBounds(48, 128, 104, 23);
 		pnlSettings.add(lblCentralisedTracker);
 		
 		txtTracker = new JTextField();
-		txtTracker.setText("localhost:4689");
+		txtTracker.setText(trck);
 		txtTracker.setBounds(154, 129, 233, 20);
 		pnlSettings.add(txtTracker);
 		txtTracker.setColumns(10);
@@ -197,7 +200,7 @@ public class MainWindow extends JFrame {
 		pnlSettings.add(lblSharedDirectory);
 		
 		txtShareDir = new JTextField();
-		txtShareDir.setText("E:\\TEST2");
+		txtShareDir.setText(dir);
 		txtShareDir.setBounds(154, 170, 233, 20);
 		pnlSettings.add(txtShareDir);
 		txtShareDir.setColumns(10);
@@ -230,7 +233,10 @@ public class MainWindow extends JFrame {
 		});
 		
 		try {
-			p2pMain=new P2PMain("E:\\TEST2","localhost",Constants.PORT);
+			String tmp[]=txtTracker.getText().split(":");
+			String serverIP=tmp[0];
+			int prt=Integer.parseInt(tmp[1]);
+			p2pMain=new P2PMain(txtShareDir.getText(),serverIP,prt);
 			//dftSearchFiles.addRow(new Object[]{"Hey","Guys","how"});
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

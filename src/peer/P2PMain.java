@@ -17,7 +17,7 @@ public class P2PMain {
 	private ServerConnection srv;
 	private final FileManager fileManager;
 	private final DownloadManager downloadMgr;
-	public static final long KEEP_ALIVE_TIME=60000;
+	public static final long KEEP_ALIVE_TIME=90000;
 	
 	public P2PMain(String share,String server,int port) throws Exception{
 		ownID=new PeerID();
