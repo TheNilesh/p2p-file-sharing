@@ -14,7 +14,7 @@ public class DownloadReq extends P2PRequest{
 		super(p);
 		this.type=Req.DOWNLOAD_REQ;
 		this.fileID=checksum;
-		this.description="request to send file, i.e, ask other peers to send me";
+		this.description="DOWNLOAD : "+ checksum;
 	}
 	
 	public String getChecksum(){

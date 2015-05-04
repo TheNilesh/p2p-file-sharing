@@ -31,6 +31,10 @@ public class P2PRequest implements Serializable {
 		reqID=(new Random()).nextInt();
 		this.peerID=peerID;
 	}
+	
+	public String toString(){
+		return description;
+	}
 }
 
 

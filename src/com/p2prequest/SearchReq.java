@@ -10,6 +10,7 @@ public class SearchReq extends P2PRequest {
 		super(p);
 		this.type=Req.SEARCH;
 		this.searchText=searchTags;
+		this.description="SEARCH : " + searchText;
 	}
 	
 	public String getSearchText(){

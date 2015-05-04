@@ -17,7 +17,7 @@ public class ReadyReq extends P2PRequest{
 		this.sessionID=sessionID;
 		this.port=port;
 		this.checksum=checksum;
-		this.description="Peer is ready to download file send that to port " + port;
+		this.description="READY_DOWNLOAD:" + port;
 	}
 	public int getPort(){
 		return port;

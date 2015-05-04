@@ -52,9 +52,10 @@ public class Download implements Runnable {
 		void listen(){
 			byte buf[]=new byte[Constants.BLOCK_SIZE + 20];	//18 bytes header
 			DatagramPacket p=new DatagramPacket(buf,buf.length);
-			try{ 
+			try{
 				while(!downloadComplete)
 				{
+					System.out.println("Listening");
 					ds.receive(p);
 					byte[] temp=p.getData();	//array length is = buf.length, so we need another smaller array exactly = size of data
 					byte[] packet= new byte[p.getLength()];
@@ -247,8 +248,10 @@ public class Download implements Runnable {
 			if(expChecksum.equals(actChecksum)){
 				downloadComplete=true;
 				System.out.println("Download completed verified");
+				dm.setComplete(this,true);
 			}else{
 				System.out.println("Download checksum Failed");
+				dm.setComplete(this,false);
 			}
 			
 			return true;

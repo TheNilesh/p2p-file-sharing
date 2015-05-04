@@ -31,9 +31,9 @@ public class FileManager{
 		
 		watcher=new WatchDir(sharedDirectory.toPath(),false,this);
 		Thread watcherThread=new Thread(watcher);
-		System.out.println("Start Local Scan..");
+		//System.out.println("Start Local Scan..");
 		readCurrentFiles();
-		System.out.println("Local Scan Complete\nStarted Listening new file modification events");
+		//System.out.println("Local Scan Complete\nStarted Listening new file modification events");
 		
 		watcherThread.start();
 	}
@@ -67,7 +67,7 @@ public class FileManager{
 	
 	public void uploadFileBlock(String checksum, byte[]blocks,PeerInfo p){
 		File f=localFiles.get(checksum).getFile();
-		System.out.println("Upload : " + f.getName() + " to " + p.nick);
+		System.out.println("[UPLOAD] : " + f.getName() + " to " + p.nick);
 		Uploader u=new Uploader(f,checksum,blocks,p);
 	}
 	
@@ -92,5 +92,9 @@ public class FileManager{
 	
 	public String getSharedDir(){
 		return sharedDirectory.getPath();
+	}
+
+	public void unIgnore(FileInfo fi) {
+		ignored.remove(fi.getFile().getName());
 	}
 }

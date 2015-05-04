@@ -15,7 +15,7 @@ public class ShowMD5{
 	}
 	
 	public String calculateMD5() throws Exception{
-		System.out.println("Started digest");
+		//System.out.println("Started digest");
 		String strMD5="";
 		FileInputStream fis=new FileInputStream(f);
 		byte data[]=new byte[1024];
@@ -35,7 +35,7 @@ public class ShowMD5{
 			//System.out.print(str);
 			strMD5=strMD5.concat(str);
 		}
-		System.out.println("Digest completed.");
+		//System.out.println("Digest completed.");
 		return strMD5;
 	}
 }

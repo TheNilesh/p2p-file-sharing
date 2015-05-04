@@ -33,7 +33,7 @@ public class Uploader implements Runnable {
 	@Override
 	public void run() {
 		//select block
-		System.out.println("Sending thread started>" );
+		System.out.println("Sending Blocks: of " + f.getName() + " to " + p + " on " + p.ia.getHostAddress() + ":" + p.port );
 		try{
 			for(int i=0;i<blocks.length;i++){
 				if(blocks[i]==BLOCK){
@@ -56,14 +56,14 @@ public class Uploader implements Runnable {
 	
 	void uploadCode(int blockNumber) throws IOException{
 		//open file, read block, send that
-		System.out.println("Sending code: <" + blockNumber + ">" );
+		//System.out.println("Sending code: <" + blockNumber + ">" );
 		ByteArrayOutputStream baos=new ByteArrayOutputStream(1024);
 		baos.write(CODE);
 		baos.write(checksum);
 		baos.write(blockNumber);
 			byte[] b1=readBlock(blockNumber);
 			byte[] b2=readBlock(blockNumber+1); //if b2.length< BLOCK_SIZE then??
-			System.out.println("exoring"+ blockNumber + " and "+ (blockNumber+1));
+			//System.out.println("exoring"+ blockNumber + " and "+ (blockNumber+1));
 			byte[] exored=exorBlocks(b1,b2);
 		baos.write(exored,0,exored.length);
 		sendPacket(baos.toByteArray());
@@ -81,7 +81,7 @@ public class Uploader implements Runnable {
 	}
 	
 	private void uploadData(int blockNumber) throws IOException{
-		System.out.println("Sent: <" + blockNumber + ">" );
+		System.out.print("<" + blockNumber + ">" );
 		int t;
 		ByteArrayOutputStream baos=new ByteArrayOutputStream(1024);
 		baos.write(BLOCK);

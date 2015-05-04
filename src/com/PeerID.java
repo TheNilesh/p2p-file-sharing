@@ -14,7 +14,7 @@ public class PeerID implements Serializable{
 	}
 	public PeerID(){
 		Random r=new Random();
-		String s="Peer "  + r.nextInt();
+		String s="Peer"  + r.nextInt(50);
 		nick=s;
 	}
 	public PeerID(String name){

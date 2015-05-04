@@ -37,7 +37,7 @@ public class ResponseGenerator {
 				presp=new P2PResponse(request.getReqID(),true);
 				presp.setDescription("OK_No_Task");
 			}else{
-				System.out.println("sent task to " + peerName);
+				System.out.println("[TASK] sent TO:" + peerName);
 				presp=tr; //send task
 			}
 			break;
@@ -45,7 +45,7 @@ public class ResponseGenerator {
 			DownloadReq dr=(DownloadReq)request;
 			fi=sm.requestFileDownload(dr.getChecksum());
 			if(fi!=null){
-				System.out.println(fi.name + " requested hold by " + fi.getSeeders().size());
+				System.out.println("[DOWN_REQ] Filename: " + fi );
 			}
 			presp=new DownloadResponse(request.getReqID(),fi!=null,fi);
 			presp.setDescription("Download_Req_will_be handled : ");
@@ -73,7 +73,7 @@ public class ResponseGenerator {
 			break;
 		case Req.SEARCH:
 			SearchReq sr=(SearchReq)request;
-			System.out.println("Search request:" + sr.getSearchText());
+			//System.out.println("Search request:" + sr.getSearchText());
 			HashSet<FileInfo> tmp1=sm.searchFiles(sr.getSearchText());
 			presp=new SearchResponse(request.getReqID(),!tmp1.isEmpty(),tmp1);
 			presp.setDescription("Text Searched and result returned");

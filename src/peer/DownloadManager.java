@@ -26,6 +26,13 @@ public class DownloadManager {
 			return 0;
 		}
 	}
+
+	public void setComplete(Download d, boolean b) {
+		System.out.println("Download Complete :" + d.f.name + " Success?:" + b);
+		if(b==true){
+			proc.downloadComplete(d.f);
+		}
+	}
 	
 	
 }

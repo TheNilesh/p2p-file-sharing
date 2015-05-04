@@ -6,6 +6,7 @@ import java.util.HashSet;
 import com.Constants;
 import com.DownloadResponse;
 import com.FileInfo;
+import com.FileStatus;
 import com.P2PResponse;
 import com.PeerID;
 import com.PeerInfo;
@@ -17,7 +18,7 @@ public class P2PMain {
 	private ServerConnection srv;
 	private final FileManager fileManager;
 	private final DownloadManager downloadMgr;
-	public static final long KEEP_ALIVE_TIME=90000;
+	public static final long KEEP_ALIVE_TIME=5000;
 	
 	public P2PMain(String share,String server,int port) throws Exception{
 		ownID=new PeerID();
@@ -38,17 +39,22 @@ public class P2PMain {
 	public boolean downloadFile(String checksum,String localName){
 		P2PResponse pr=srv.send(new DownloadReq(checksum,ownID));
 		DownloadResponse dr=(DownloadResponse) pr;
+
 		if(dr.getStatus()==true){
 			//create new Download
 			FileInfo f=dr.getFile();
 			File lf=new File(fileManager.getSharedDir() + "\\" +  localName);
-			
+						
 			if(!lf.exists()){
-				f.setFile(lf);
-				fileManager.ignoreFile(lf);
+				f.setFile(lf); //map with local file
+				fileManager.ignoreFile(lf); //so that this file creation wont add untill down lod compltes
+				System.out.println("OK?");
 				int port=downloadMgr.addDownload(f,dr.getSessionID());
+				System.out.println("Port:" + port + " opened for :" + f);
 				ReadyReq r = new ReadyReq(pr.getSessionID(),port,ownID,checksum);
 				pr=srv.send(r);
+			}else{
+				System.out.println("File : " + localName + " already exists.");
 			}
 		}
 		return pr.getStatus(); //false if file could not be located
@@ -67,5 +73,11 @@ public static void main(String args[]) throws Exception{
 	P2PMain p=new P2PMain("E:\\TEST1","localhost",Constants.PORT);
 	//P2PMain p2=new P2PMain("D:\\Nilesh\\tt","localhost",4869);
 
+}
+
+void downloadComplete(FileInfo fi) {
+	fileManager.unIgnore(fi);
+	fi.setStatus(FileStatus.NEW);
+	updateFileDB(fi); //add myself as seeder
 }
 }

@@ -56,11 +56,11 @@ public static void main(String args[]){
 		FileInfo fServer=filesAvailable.get(f.getChecksum());
 		if(fServer == null){ //file not available on server
 			filesAvailable.put(f.getChecksum(), f);
-			System.out.println("File added ");
+			System.out.println("File " + f + " added from " + p);
 			ui.addFile(f.name);
 		}else{ //file already available
 			fServer.addSeeder(p);
-			System.out.println("File already available. Seeder added.");
+			System.out.println("File " + f + " already available. Seeder " + p);
 		}
 	}
 	
@@ -71,7 +71,7 @@ public static void main(String args[]){
 		}else{ //file available
 			fServer.removeSeeder(p);
 		}
-		System.out.println(f.name + " seeder deleted");
+		//System.out.println(f.name + " seeder deleted");
 	}
 	
 	FileInfo requestFileDownload(String checksum){
@@ -80,7 +80,6 @@ public static void main(String args[]){
 	}
 
 	void sendTaskToPeers(PeerID peer,InetAddress ia, int port, String checksum) {
-		System.out.println("Informing others:");
 		FileInfo fi=requestFileDownload(checksum);
 		PeerInfo pInfo=new PeerInfo(peer.nick,ia,port);
 		
@@ -92,7 +91,7 @@ public static void main(String args[]){
 			totalBlocks=totalBlocks+ (fileSize%Constants.BLOCK_SIZE == 0?0:1);
 			int equalTask= totalBlocks/peerCnt; //That means each peer should upload this much blocks
 			
-			System.out.println("[TASK] FileName:" + fi.name + " Size:" + fileSize + " Blocks:" + totalBlocks + "Seeders:" + peerCnt );
+			System.out.println("Total Task: FileName:" + fi.name + " Size:" + fileSize + " Blocks:" + totalBlocks + "Seeders:" + peerCnt );
 			/*
 			 * Network coding: 
 			 *  sNode=getClosestSuperNode(downloader);
@@ -104,16 +103,16 @@ public static void main(String args[]){
 			 *  
 			 */
 			Iterator<PeerID >itPeers=peers.iterator();
-			int j=0;
+			int k=0;
 			while(itPeers.hasNext()){
-				byte[] blocks=new byte[totalBlocks]; //blocks.size=TotalBlocks
-				PeerID p=itPeers.next();			//fetch peer having file
+				byte[] blocks=new byte[totalBlocks]; //blocks.length=TotalBlocks
+				PeerID p=itPeers.next();			//fetch a peer having file
 
-				for(;j<equalTask;j++)		//create blocks array for p
-					blocks[j]=1;
+				for(int j=0;j<equalTask;j++)		//create blocks array for p
+					blocks[k++]=1;
 				
 				TaskResponse tr=new TaskResponse(fi,pInfo,blocks,123,false);
-				System.out.println(p.nick);
+				System.out.println("[TASK] sent in Queue, TO:" + p + " File : " + fi + " Blocks:" + equalTask);
 				rg.addTaskToSend(p.nick, tr);
 			}
 			
@@ -128,7 +127,7 @@ public static void main(String args[]){
 		while(it.hasNext()){
 			fi=it.next();
 			if(fi.tagMatches(query)){
-				System.out.println(fi);
+				//System.out.println(fi);
 				match.add(fi);
 			}
 		}

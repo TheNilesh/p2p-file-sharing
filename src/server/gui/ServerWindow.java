@@ -17,6 +17,7 @@ import server.ServerMain;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 
 public class ServerWindow extends JFrame {
 
@@ -26,6 +27,8 @@ public class ServerWindow extends JFrame {
 	private JList list;
 	private JList listFiles;
 	private DefaultListModel lstFileModel;
+	private JScrollPane scrollPane;
+	private JScrollPane scrollPane_1;
 	
 	/**
 	 * Launch the application.
@@ -56,14 +59,20 @@ public class ServerWindow extends JFrame {
 		contentPane.setLayout(null);
 		
 		listModel = new DefaultListModel();
+		
+		scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(30, 44, 130, 189);
+		contentPane.add(scrollPane_1);
 		list = new JList(listModel);
-		list.setBounds(30, 44, 130, 189);
-		contentPane.add(list);
+		scrollPane_1.setViewportView(list);
 		
 		lstFileModel = new DefaultListModel();
+		
+		scrollPane = new JScrollPane();
+		scrollPane.setBounds(194, 44, 230, 189);
+		contentPane.add(scrollPane);
 		listFiles = new JList(lstFileModel);
-		listFiles.setBounds(194, 44, 230, 189);
-		contentPane.add(listFiles);
+		scrollPane.setViewportView(listFiles);
 		
 		JLabel lblPeersConnected = new JLabel("Peers Connected");
 		lblPeersConnected.setBounds(31, 23, 109, 14);

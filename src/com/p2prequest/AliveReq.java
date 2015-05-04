@@ -12,6 +12,6 @@ public class AliveReq extends P2PRequest{
 	public AliveReq(PeerID p){
 		super(p);
 		this.type=Req.ALIVE;
-		this.description="I am online. You can send back me work";
+		this.description="ALIVE";
 	}
 }

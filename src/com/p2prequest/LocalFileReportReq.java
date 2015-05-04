@@ -17,7 +17,7 @@ public class LocalFileReportReq extends P2PRequest{
 		super(p);
 		this.fi=fLocal;
 		this.type=Req.FILE_CHANGED;
-		this.description="Local file updated";
+		this.description="UPDATE";
 	}
 	
 	public FileInfo getFirstFile(){

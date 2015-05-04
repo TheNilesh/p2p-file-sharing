@@ -71,7 +71,7 @@ public class MainWindow extends JFrame {
 	 * Create the frame.
 	 */
 	public MainWindow(String trck,String dir) {
-		setTitle("Peer to Peer File Sharing");
+		setTitle("Loading..");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 674, 446);
 		contentPane = new JPanel();
@@ -124,8 +124,7 @@ public class MainWindow extends JFrame {
 				if(selRow>=0){
 					String checksum=(String)tblSearchResult.getValueAt(selRow,4);
 					String localName=(String)tblSearchResult.getValueAt(selRow, 0);
-					System.out.println("Download? " + checksum + " " + localName);
-					System.out.println(p2pMain.downloadFile(checksum, localName));
+					System.out.println("Download Req :" + localName + " Succeed?" + p2pMain.downloadFile(checksum, localName));
 				}
 			}
 		});
@@ -237,7 +236,7 @@ public class MainWindow extends JFrame {
 			String serverIP=tmp[0];
 			int prt=Integer.parseInt(tmp[1]);
 			p2pMain=new P2PMain(txtShareDir.getText(),serverIP,prt);
-			//dftSearchFiles.addRow(new Object[]{"Hey","Guys","how"});
+			setTitle(""+ p2pMain.ownID);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -17,7 +17,6 @@ class KeepAlive extends TimerTask{
 		if(pr.getStatus()==false){
 			//Server sent job
 			TaskResponse tr=(TaskResponse)pr;
-			System.out.println("Task received");
 			srv.doTask(tr); //we done it
 		}
 	}
