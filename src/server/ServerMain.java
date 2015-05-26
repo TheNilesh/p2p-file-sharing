@@ -90,6 +90,8 @@ public static void main(String args[]){
 			int totalBlocks=fileSize / Constants.BLOCK_SIZE;
 			totalBlocks=totalBlocks+ (fileSize%Constants.BLOCK_SIZE == 0?0:1);
 			int equalTask= totalBlocks/peerCnt; //That means each peer should upload this much blocks
+			int extraTask=totalBlocks % peerCnt;
+			int exFlag=0;
 			
 			System.out.println("Total Task: FileName:" + fi.name + " Size:" + fileSize + " Blocks:" + totalBlocks + "Seeders:" + peerCnt );
 			/*
@@ -110,10 +112,16 @@ public static void main(String args[]){
 
 				for(int j=0;j<equalTask;j++)		//create blocks array for p
 					blocks[k++]=1;
+				if(extraTask>0){
+					blocks[k++]=1;
+					extraTask--;
+					exFlag=1;
+				}
 				
 				TaskResponse tr=new TaskResponse(fi,pInfo,blocks,123,false);
-				System.out.println("[TASK] sent in Queue, TO:" + p + " File : " + fi + " Blocks:" + equalTask);
 				rg.addTaskToSend(p.nick, tr);
+				System.out.println("[TASK] sent in Queue, TO:" + p + " File : " + fi + " Blocks:" + (equalTask + exFlag));
+				exFlag=0;
 			}
 			
 		}
